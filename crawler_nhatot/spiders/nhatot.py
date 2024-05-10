@@ -1,6 +1,8 @@
 import scrapy
 from scrapy.exceptions import CloseSpider
 from datetime import datetime
+from hanoikovoidcdau import standardize
+from crawler_nhatot.remote_database import init
 
 from crawler_nhatot.items import RoomItem
 from crawler_nhatot.gemini import extract_location
@@ -68,9 +70,13 @@ class NhatotSpider(scrapy.Spider):
         # # Địa chỉ
         address = response.css('.re__section-body.re__detail-content.js__section-body.js__pr-description.js__tracking').get()
         (item["street"], item["ward"], item["district"], *_) = extract_location(address).split(',')
+        item["street"] = standardize.standardize_street_name(item["street"])
+        item["ward"] = standardize.standardize_ward_name(item["ward"])
+        item["district"] = standardize.standardize_district_name(item["district"])
 
         item["num_diningroom"] = 0
         item["num_kitchen"] = 0
         item["current_floor"] = 0
 
+        data, count = self.supabase.table("entries").insert(item.to_dict()).execute()
         yield item

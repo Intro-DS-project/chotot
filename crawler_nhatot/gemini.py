@@ -4,7 +4,9 @@ from pathlib import Path
 
 import google.generativeai as genai
 
-genai.configure(api_key="AIzaSyCtttdz76md09OZKwtbN5etMX78RzFZas4")
+load_dotenv(dotenv_path=Path('./.env'))
+GOOGLE_API_KEY = os.getenv('API_KEY')
+genai.configure(api_key=GOOGLE_API_KEY)
 
 # Set up the model
 generation_config = {
