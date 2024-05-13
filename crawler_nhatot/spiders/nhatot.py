@@ -1,6 +1,6 @@
 import scrapy
 from scrapy.exceptions import CloseSpider
-from datetime import datetime
+import datetime
 from hanoikovoidcdau import standardize
 from crawler_nhatot.remote_database import init
 
@@ -14,7 +14,7 @@ class NhatotSpider(scrapy.Spider):
 
     def start_requests(self):
         i = 0
-        while i <= 0:
+        while i <= 10:
             yield scrapy.Request(url=f"https://phongtro.com/cho-thue-nha-tro-phong-tro-ha-noi-xc1-ci57.html?pi={i}", callback=self.parse)
             if self.stop:
                 raise CloseSpider("Completed scraping the current day's item.")
@@ -29,9 +29,15 @@ class NhatotSpider(scrapy.Spider):
     def parse_room_detail(self, response):
         item = RoomItem()
         item["current_floor"] = 1
-        # Thời gian: 06-04-2024
+        # Thời gian:
         post_date_str = response.css('.re__pr-short-info .title:contains("Ngày cập nhật") + .value::text').get()
-        post_date_datetime = datetime.strptime(post_date_str, "%d-%m-%Y").date()
+        x = datetime.datetime.now()
+        now = x.date()
+        p = now.strftime("%d-%m-%Y")
+
+        if p != post_date_str:
+            return
+        
         item["post_date"] = post_date_str
 
 
